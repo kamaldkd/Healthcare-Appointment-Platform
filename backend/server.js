@@ -15,14 +15,43 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS — allow all origins in development
+// ─── CORS ────────────────────────────────────────────────────────────────────
+// Build list of allowed origins: always include localhost, plus CLIENT_URL in production.
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000',
+];
+
+if (process.env.CLIENT_URL) {
+  // Trim trailing slash to normalise comparison
+  allowedOrigins.push(process.env.CLIENT_URL.replace(/\/$/, ''));
+}
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL : '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: function (origin, callback) {
+      // Allow requests with no origin header (Postman, curl, mobile apps, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const cleanOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(cleanOrigin)) {
+        return callback(null, true);
+      }
+
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      return callback(new Error(`CORS policy: origin ${origin} is not allowed`), false);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false, // we use Bearer tokens, not cookies — keep false
   })
 );
+
+// Explicitly handle OPTIONS preflight for all routes
+// (some browsers send a preflight before the real request)
+app.options('*', cors());
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Health check route
 app.get('/', (req, res) => {
@@ -54,4 +83,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
 });
