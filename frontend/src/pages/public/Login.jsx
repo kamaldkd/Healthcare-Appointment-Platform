@@ -208,6 +208,12 @@ function Login() {
                 </>
               ) : 'Login to HealthBook'}
             </button>
+            {/* demo credentials for admin: email and password */}
+            {isAdminLogin && (
+              <div className="mt-3 text-sm text-gray-500">
+                <strong>Demo Admin:</strong> <code>admin@healthbook.com</code> / <code>Admin@123</code>
+              </div>
+            )}
           </form>
 
           <div className="mt-6 text-center">
