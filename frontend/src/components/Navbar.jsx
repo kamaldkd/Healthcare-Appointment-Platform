@@ -83,7 +83,7 @@ function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className="px-4 py-2 rounded-xl text-gray-600 font-medium hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 text-sm"
+                className="px-4 py-2 rounded-xl text-gray-600 font-medium hover:text-white hover:bg-primary-600 transition-all duration-400 text-sm"
               >
                 {link.label}
               </Link>
