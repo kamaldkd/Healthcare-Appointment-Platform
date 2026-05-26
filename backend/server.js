@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS — allow all origins in development
 app.use(
   cors({
-    origin: '*',
+    origin: process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL : '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
